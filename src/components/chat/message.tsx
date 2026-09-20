@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { AlertTriangle, ShieldX, HelpCircle, Ban, Copy, Check, ThumbsUp, ThumbsDown, RefreshCw, Pencil, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import type { AssistantMessage, UserMessage } from "@/lib/types";
@@ -9,8 +9,7 @@ import { AgentTrace } from "./agent-trace";
 import { Working } from "./working";
 import { LogoMark } from "@/components/shell/logo";
 import { SqlBlock } from "./sql-block";
-import { ResultTable } from "./result-table";
-import { ResultChart, chartPlan } from "./result-chart";
+import { ResultBlock } from "./result-block";
 import { Answer } from "./answer";
 import { TierBadge } from "./tier-badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -37,7 +36,6 @@ export function UserBubble({ m }: { m: UserMessage }) {
 
 export function AssistantBubble({ m }: { m: AssistantMessage }) {
   const prefs = useStore((s) => s.prefs);
-  const plan = useMemo(() => (m.result ? chartPlan(m.result) : null), [m.result]);
   const [details, setDetails] = useState<boolean | null>(null);
   const showDetails = details ?? prefs.showSql;
   // The working indicator lives until the first token of the answer, then gives way.
@@ -58,8 +56,7 @@ export function AssistantBubble({ m }: { m: AssistantMessage }) {
           </div>
         )}
 
-        {m.result && plan && prefs.autoChart && <ResultChart result={m.result} />}
-        {m.result && m.result.row_count > 0 && <ResultTable result={m.result} />}
+        {m.result && m.result.row_count > 0 && <ResultBlock m={m} />}
 
         {m.done && <Actions m={m} details={showDetails} onToggleDetails={() => setDetails(!showDetails)} />}
 
