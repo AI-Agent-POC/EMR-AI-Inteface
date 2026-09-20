@@ -28,9 +28,9 @@ export function Hero() {
 
   return (
     <div className="hero-bg flex h-full flex-col overflow-y-auto">
-      <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-4 pb-16 pt-6 sm:px-6">
-        <div className="rise mb-7 flex items-center gap-2 text-center text-[13.5px] text-muted-foreground">
-          <Sparkles className="size-3.5 text-primary" />
+      <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-4 pt-4 pb-[max(2rem,env(safe-area-inset-bottom))] sm:px-6 sm:pt-6 sm:pb-16">
+        <div className="rise mb-5 flex items-center justify-center gap-2 text-center text-[12.5px] text-muted-foreground sm:mb-7 sm:text-[13.5px]">
+          <Sparkles className="hidden size-3.5 shrink-0 text-primary sm:inline" />
           <span>Al Waha Medical &amp; Dental · 3 branches · 977k records · viewing as <span className="font-medium text-foreground/85">{persona.label}</span></span>
         </div>
 
@@ -45,17 +45,17 @@ export function Hero() {
           <Composer variant="hero" />
         </div>
 
-        <div className="rise mt-7 flex w-full max-w-3xl flex-wrap justify-center gap-2" style={{ animationDelay: "180ms" }}>
+        <div className="rise mt-6 flex w-full max-w-3xl flex-col gap-2 sm:mt-7 sm:flex-row sm:flex-wrap sm:justify-center" style={{ animationDelay: "180ms" }}>
           {items === null && [0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-9 w-56 rounded-full" />)}
           {items?.slice(0, 5).map((s) => (
             <button key={s.question} onClick={() => void ask(s.question)} title={s.why ?? undefined}
-              className="glass max-w-full truncate rounded-full border border-border/70 px-4 py-2 text-[13px] text-foreground/85 transition-colors hover:border-primary/40 hover:text-foreground">
+              className="glass max-w-full rounded-2xl border border-border/70 px-4 py-2.5 text-left text-[13.5px] leading-snug text-foreground/85 transition-colors hover:border-primary/40 hover:text-foreground sm:truncate sm:rounded-full sm:py-2 sm:text-center sm:text-[13px]">
               {s.question}
             </button>
           ))}
         </div>
 
-        <div className="rise mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12.5px] text-muted-foreground" style={{ animationDelay: "240ms" }}>
+        <div className="rise mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12.5px] text-muted-foreground sm:mt-10" style={{ animationDelay: "240ms" }}>
           <Link href="/insights" className="inline-flex items-center gap-1 hover:text-foreground">24 insights hidden in the data <ArrowRight className="size-3" /></Link>
           <Link href="/explore" className="inline-flex items-center gap-1 hover:text-foreground">Every table, explained <ArrowRight className="size-3" /></Link>
           <Link href="/guardrails" className="inline-flex items-center gap-1 hover:text-foreground">What it will refuse <ArrowRight className="size-3" /></Link>

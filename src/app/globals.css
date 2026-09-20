@@ -257,3 +257,8 @@ code, pre, kbd, .font-mono { font-family: var(--font-mono); }
 .ghost-line { animation: ghost 1.8s ease-in-out infinite; }
 @keyframes fade-swap { from { opacity: 0; transform: translateY(3px) } to { opacity: 1; transform: none } }
 .fade-swap { animation: fade-swap .35s ease-out both; }
+
+/* Controls revealed on hover must stay put where there is no hover to give. */
+@media (hover: none) {
+  .hover-reveal { opacity: 1 !important; }
+}

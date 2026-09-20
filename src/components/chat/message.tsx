@@ -25,10 +25,10 @@ export function UserBubble({ m }: { m: UserMessage }) {
   return (
     <div className="group flex flex-col items-end gap-1 py-4">
       <div className="max-w-[80%] whitespace-pre-wrap rounded-3xl rounded-br-lg bg-muted px-5 py-3 text-[15px] leading-relaxed text-foreground">{m.text}</div>
-      <div className="flex items-center gap-0.5 pr-1 opacity-0 transition-opacity group-hover:opacity-100">
+      <div className="hover-reveal flex items-center gap-0.5 pr-1 opacity-0 transition-opacity group-hover:opacity-100">
         <span className="mr-1 text-[11px] text-muted-foreground">{time(m.at)}</span>
-        <Button variant="ghost" size="icon-xs" className="text-muted-foreground" onClick={() => setDraft(m.text)} title="Edit and resend"><Pencil className="size-3.5" /></Button>
-        <Button variant="ghost" size="icon-xs" className="text-muted-foreground" onClick={() => void copy()} title="Copy">{copied ? <Check className="size-3.5 text-tier-open" /> : <Copy className="size-3.5" />}</Button>
+        <Button variant="ghost" size="icon-sm" className="size-9 text-muted-foreground sm:size-6" onClick={() => setDraft(m.text)} title="Edit and resend"><Pencil className="size-3.5" /></Button>
+        <Button variant="ghost" size="icon-sm" className="size-9 text-muted-foreground sm:size-6" onClick={() => void copy()} title="Copy">{copied ? <Check className="size-3.5 text-tier-open" /> : <Copy className="size-3.5" />}</Button>
       </div>
     </div>
   );
@@ -132,23 +132,23 @@ function Actions({ m, details, onToggleDetails }: { m: AssistantMessage; details
 
   return (
     <div className="flex flex-wrap items-center gap-x-1 gap-y-1 pt-0.5">
-      <Button variant="ghost" size="icon-xs" className="text-muted-foreground" onClick={() => void copy()} title="Copy answer">
+      <Button variant="ghost" size="icon-sm" className="size-9 text-muted-foreground sm:size-6" onClick={() => void copy()} title="Copy answer">
         {copied ? <Check className="size-3.5 text-tier-open" /> : <Copy className="size-3.5" />}
       </Button>
-      <Button variant="ghost" size="icon-xs" disabled={!canRate} className={cn("text-muted-foreground", m.feedback === 1 && "text-tier-open")} onClick={() => void rate(1)} title="Helpful">
+      <Button variant="ghost" size="icon-sm" disabled={!canRate} className={cn("text-muted-foreground sm:size-6", m.feedback === 1 && "text-tier-open")} onClick={() => void rate(1)} title="Helpful">
         <ThumbsUp className={cn("size-3.5", m.feedback === 1 && "fill-current")} />
       </Button>
-      <Button variant="ghost" size="icon-xs" disabled={!canRate} className={cn("text-muted-foreground", m.feedback === -1 && "text-tier-never")} onClick={() => void rate(-1)} title="Not helpful">
+      <Button variant="ghost" size="icon-sm" disabled={!canRate} className={cn("text-muted-foreground sm:size-6", m.feedback === -1 && "text-tier-never")} onClick={() => void rate(-1)} title="Not helpful">
         <ThumbsDown className={cn("size-3.5", m.feedback === -1 && "fill-current")} />
       </Button>
-      <Button variant="ghost" size="icon-xs" className="text-muted-foreground" disabled={busy} onClick={() => void regenerate(m.id)} title="Ask again">
+      <Button variant="ghost" size="icon-sm" className="size-9 text-muted-foreground sm:size-6" disabled={busy} onClick={() => void regenerate(m.id)} title="Ask again">
         <RefreshCw className="size-3.5" />
       </Button>
       <span className="ml-2 text-[11.5px] text-muted-foreground/80">
         {time(m.startedAt)} · answered in {fmtMs(d.latency_ms)}
       </span>
       <Button variant="ghost" size="sm" onClick={onToggleDetails}
-        className={cn("ml-auto h-6 gap-1 px-2 text-[11.5px] text-muted-foreground", details && "text-foreground")}>
+        className={cn("ml-auto h-8 gap-1 px-2.5 text-[12px] text-muted-foreground sm:h-6 sm:px-2 sm:text-[11.5px]", details && "text-foreground")}>
         How it got this<ChevronDown className={cn("size-3 transition-transform", details && "rotate-180")} />
       </Button>
     </div>

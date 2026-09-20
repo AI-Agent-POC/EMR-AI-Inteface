@@ -52,7 +52,7 @@ export function ConversationMenu() {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger render={<Button variant="ghost" size="icon-xs" className="text-muted-foreground" aria-label="Conversation options" />}>
+        <DropdownMenuTrigger render={<Button variant="ghost" size="icon-xs" className="size-8 text-muted-foreground sm:size-6" aria-label="Conversation options" />}>
           <ChevronDown className="size-3.5" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-48">

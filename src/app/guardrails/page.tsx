@@ -74,7 +74,7 @@ export default function GuardrailsPage() {
             <div className="text-sm font-medium">{ok ? "Live check against the database: all invariants hold" : report ? "Live check: an invariant is violated" : "Checking the live database…"}</div>
             <Button variant="ghost" size="sm" className="ml-auto h-8 gap-1.5 text-xs" onClick={load} disabled={checking}><RefreshCw className={cn("size-3.5", checking && "animate-spin")} />Re-check</Button>
           </div>
-          <div className="mt-3 grid gap-2 sm:grid-cols-4">
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {t ? [
               { l: "Never-tier columns readable by any role", v: t.never_columns_readable, want: 0 },
               { l: "Write privileges held by any role",       v: t.write_grants,           want: 0 },

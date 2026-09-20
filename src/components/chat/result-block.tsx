@@ -86,7 +86,7 @@ export function ResultBlock({ m }: { m: AssistantMessage }) {
           <div className="flex items-center gap-0.5 rounded-lg border bg-card p-0.5">
             {views.map((v) => (
               <button key={v} onClick={() => setView(v)}
-                className={cn("inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[12.5px] transition-colors",
+                className={cn("inline-flex min-h-9 items-center gap-1.5 rounded-md px-3 py-2 text-[13px] transition-colors sm:min-h-0 sm:px-2.5 sm:py-1 sm:text-[12.5px]",
                   v === active ? "bg-accent font-medium text-foreground"
                                : "text-muted-foreground hover:text-foreground")}>
                 {v === "chart" ? <BarChart3 className="size-3.5" />
@@ -102,7 +102,7 @@ export function ResultBlock({ m }: { m: AssistantMessage }) {
           <DropdownMenu>
             <DropdownMenuTrigger render={
               <Button variant={horizon ? "secondary" : "outline"} size="sm"
-                      className="h-8 gap-1.5 text-[12.5px]" />
+                      className="h-9 gap-1.5 text-[13px] sm:h-8 sm:text-[12.5px]" />
             }>
               <TrendingUp className="size-3.5" />
               {horizon ? `Projecting ${horizon}` : "Project"}
@@ -133,7 +133,7 @@ export function ResultBlock({ m }: { m: AssistantMessage }) {
         )}
 
         <DropdownMenu>
-          <DropdownMenuTrigger render={<Button variant="outline" size="sm" className="ml-auto h-8 gap-1.5 text-[12.5px]" disabled={busy} />}>
+          <DropdownMenuTrigger render={<Button variant="outline" size="sm" className="ml-auto h-9 gap-1.5 text-[13px] sm:h-8 sm:text-[12.5px]" disabled={busy} />}>
             {busy ? <Loader2 className="size-3.5 spinner" /> : <Download className="size-3.5" />}Download
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-52">

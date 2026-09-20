@@ -33,7 +33,7 @@ export function PersonaSwitcher() {
         {me && <span className="hidden sm:inline-flex"><TierBadge tier={me.max_tier} /></span>}
         <ChevronsUpDown className="size-3.5 text-muted-foreground" />
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-[360px] p-0">
+      <PopoverContent align="end" className="w-[min(360px,calc(100vw-1.5rem))] p-0">
         <div className="px-3 py-2.5 border-b">
           <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Viewing as</div>
           {me ? (

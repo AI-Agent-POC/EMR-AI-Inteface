@@ -50,9 +50,9 @@ export function ResultTable({ result, maxRows = 200 }: { result: ResultSet; maxR
         <Table2 className="size-3.5" />
         <span><span className="font-medium text-foreground/80">{result.row_count.toLocaleString()}</span> row{result.row_count === 1 ? "" : "s"}{result.truncated && " (showing the first 200)"}</span>
         {result.rows.length > maxRows && <span>· showing first {maxRows}</span>}
-        <Button variant="ghost" size="sm" className="ml-auto h-7 gap-1.5 text-xs" onClick={download}><Download className="size-3.5" />CSV</Button>
+        <Button variant="ghost" size="sm" className="ml-auto h-8 gap-1.5 text-xs sm:h-7" onClick={download}><Download className="size-3.5" />CSV</Button>
       </div>
-      <div className="max-h-[420px] overflow-auto border-t">
+      <div className="max-h-[55vh] overflow-auto border-t sm:max-h-[420px]">
         <Table>
           <TableHeader className="sticky top-0 bg-card z-10">
             {table.getHeaderGroups().map((hg) => (

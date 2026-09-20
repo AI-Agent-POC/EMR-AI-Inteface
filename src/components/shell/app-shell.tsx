@@ -97,7 +97,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className={cn("flex h-14 shrink-0 items-center gap-2 px-3 sm:px-4", !onAsk && "border-b border-border/60")}>
-          <Button variant="ghost" size="icon-sm" className="md:hidden text-muted-foreground" onClick={() => setMobileOpen(true)} aria-label="Menu"><PanelLeft className="size-4" /></Button>
+          <Button variant="ghost" size="icon" className="text-muted-foreground md:hidden" onClick={() => setMobileOpen(true)} aria-label="Menu"><PanelLeft className="size-[18px]" /></Button>
           {collapsed && (
             <>
               <Button variant="ghost" size="icon-sm" className="hidden md:inline-flex text-muted-foreground" onClick={() => setCollapsed(false)} aria-label="Show sidebar"><PanelLeft className="size-4" /></Button>

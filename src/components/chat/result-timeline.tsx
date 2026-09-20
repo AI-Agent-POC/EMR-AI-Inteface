@@ -56,7 +56,7 @@ export function ResultTimeline({ series, forecast }: { series: Series; forecast?
         )}
       </div>
 
-      <ol className="max-h-[440px] overflow-y-auto border-t px-3 py-2">
+      <ol className="border-t px-3 py-2 sm:max-h-[440px] sm:overflow-y-auto">
         {points.map((p, i) => {
           const value = p.values[measure];
           const prev = i > 0 ? points[i - 1].values[measure] : undefined;
@@ -78,7 +78,7 @@ export function ResultTimeline({ series, forecast }: { series: Series; forecast?
 
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                  <span className={cn("text-[13px] font-medium", p.projected && "text-muted-foreground")}>
+                  <span className={cn("w-full text-[13px] font-medium sm:w-auto", p.projected && "text-muted-foreground")}>
                     {p.period.label}
                   </span>
                   {p.projected && (
@@ -86,7 +86,7 @@ export function ResultTimeline({ series, forecast }: { series: Series; forecast?
                       projected
                     </span>
                   )}
-                  <span className={cn("ml-auto font-mono text-[13.5px] tabular-nums",
+                  <span className={cn("font-mono text-[13.5px] tabular-nums sm:ml-auto",
                     p.projected ? "text-muted-foreground" : "text-foreground")}>
                     {Number.isFinite(value) ? fmt(value) : "—"}
                   </span>

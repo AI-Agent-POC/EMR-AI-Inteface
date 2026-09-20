@@ -59,7 +59,7 @@ export default function ExplorePage() {
           Laid out by ClinicSoft module. Columns you are not cleared for are simply absent from this list, exactly as they are absent from the agent's context.
         </p>
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-4">
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {summary ? [
             { n: summary.tables, l: "base tables" }, { n: summary.views, l: "report views" },
             { n: summary.columns - summary.columns_never, l: "columns visible to you" },

@@ -96,8 +96,8 @@ export function ResultChart({ result, series, forecast }: {
         <span className="font-medium text-foreground/80">{plan.ys.map(humanise).join(", ")}</span>
         <span>by {humanise(plan.x)}</span>
         <div className="ml-auto flex gap-0.5">
-          <Button variant={kind === "bar" ? "secondary" : "ghost"} size="icon-sm" onClick={() => setKind("bar")} aria-label="Bar"><BarChart3 className="size-3.5" /></Button>
-          <Button variant={kind === "line" ? "secondary" : "ghost"} size="icon-sm" onClick={() => setKind("line")} aria-label="Line"><LineIcon className="size-3.5" /></Button>
+          <Button variant={kind === "bar" ? "secondary" : "ghost"} size="icon-sm" className="size-9 sm:size-7" onClick={() => setKind("bar")} aria-label="Bar"><BarChart3 className="size-3.5" /></Button>
+          <Button variant={kind === "line" ? "secondary" : "ghost"} size="icon-sm" className="size-9 sm:size-7" onClick={() => setKind("line")} aria-label="Line"><LineIcon className="size-3.5" /></Button>
         </div>
       </div>
       <ChartContainer config={config} className={cn("h-[260px] w-full border-t px-2 pt-3 pb-1")}>

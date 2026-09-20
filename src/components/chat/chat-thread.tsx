@@ -49,17 +49,18 @@ export function ChatThread() {
         </div>
       </div>
 
-      {!pinned && (
-        <Button size="icon-sm" variant="outline" aria-label="Scroll to bottom"
-          className="absolute bottom-[132px] left-1/2 -translate-x-1/2 rounded-full shadow-md"
-          onClick={() => { setPinned(true); bottom.current?.scrollIntoView({ behavior: "smooth" }); }}>
-          <ArrowDown className="size-4" />
-        </Button>
-      )}
-
-      <div className="shrink-0 px-3 pb-3 pt-1 sm:px-6">
+      {/* Anchored to the top of the composer, not a fixed offset, so it never lands in
+          the middle of a result card on a short screen. */}
+      <div className="relative shrink-0 px-3 pt-1 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-6">
+        {!pinned && (
+          <Button size="icon-sm" variant="outline" aria-label="Scroll to bottom"
+            className="absolute -top-11 left-1/2 size-9 -translate-x-1/2 rounded-full bg-background shadow-md sm:-top-10 sm:size-8"
+            onClick={() => { setPinned(true); bottom.current?.scrollIntoView({ behavior: "smooth" }); }}>
+            <ArrowDown className="size-4" />
+          </Button>
+        )}
         <Composer variant="docked" />
-        <p className="mt-2 text-center text-[11px] text-muted-foreground/70">
+        <p className="mt-2 hidden text-center text-[11px] text-muted-foreground/70 sm:block">
           Figures come straight from the practice database. Anything you are not cleared to see is never fetched.
         </p>
       </div>

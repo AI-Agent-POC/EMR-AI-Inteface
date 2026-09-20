@@ -86,14 +86,14 @@ function ConversationRow({ c, active, onOpen, onRename, onDelete }: {
   return (
     <div className={cn("group relative flex items-center rounded-md pr-1 text-[13px] transition-colors",
       active ? "bg-sidebar-accent text-foreground" : "text-foreground/80 hover:bg-sidebar-accent/60 hover:text-foreground")}>
-      <button onClick={onOpen} className="min-w-0 flex-1 truncate py-1.5 pl-2 pr-1 text-left" title={c.title ?? ""}>
+      <button onClick={onOpen} className="min-w-0 flex-1 truncate py-2.5 pl-2 pr-1 text-left sm:py-1.5" title={c.title ?? ""}>
         {c.pinned && <Pin className="mr-1.5 inline size-3 -translate-y-px text-primary" />}
         {c.title || "Untitled"}
       </button>
       <DropdownMenu open={menu} onOpenChange={setMenu}>
         <DropdownMenuTrigger
           render={<Button variant="ghost" size="icon-xs" aria-label="Chat options"
-            className={cn("shrink-0 text-muted-foreground opacity-0 group-hover:opacity-100 data-[popup-open]:opacity-100", (menu || active) && "opacity-100")} />}>
+            className={cn("hover-reveal size-8 shrink-0 text-muted-foreground opacity-0 group-hover:opacity-100 data-[popup-open]:opacity-100 sm:size-6", (menu || active) && "opacity-100")} />}>
           <MoreHorizontal className="size-3.5" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-44">
