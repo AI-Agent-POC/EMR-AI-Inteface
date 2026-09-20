@@ -1,0 +1,68 @@
+"use client";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { ArrowDown } from "lucide-react";
+import { useStore } from "@/lib/store";
+import { AssistantBubble, UserBubble } from "./message";
+import { Composer } from "./composer";
+import { Hero } from "./hero";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+
+export function ChatThread() {
+  const messages = useStore((s) => s.conversation.messages);
+  const historyLoading = useStore((s) => s.historyLoading);
+  const consumeQueued = useStore((s) => s.consumeQueued);
+  const ask = useStore((s) => s.ask);
+  const openConversation = useStore((s) => s.openConversation);
+  const params = useSearchParams();
+  const scroller = useRef<HTMLDivElement>(null);
+  const bottom = useRef<HTMLDivElement>(null);
+  const [pinned, setPinned] = useState(true);     // is the view at the bottom?
+  const last = messages.at(-1);
+  const lastLen = last?.role === "assistant" ? last.answer.length + (last.result?.row_count ?? 0) + last.trace.length : 0;
+
+  useEffect(() => { if (pinned) bottom.current?.scrollIntoView({ behavior: "smooth", block: "end" }); }, [messages.length, lastLen, pinned]);
+  useEffect(() => { const q = consumeQueued(); if (q) void ask(q); }, [consumeQueued, ask]);
+  useEffect(() => { const c = params.get("c"); if (c) void openConversation(c); }, [params, openConversation]);
+
+  const onScroll = () => {
+    const el = scroller.current; if (!el) return;
+    setPinned(el.scrollHeight - el.scrollTop - el.clientHeight < 80);
+  };
+
+  if (messages.length === 0 && !historyLoading) return <Hero />;
+
+  return (
+    <div className="relative flex h-full flex-col">
+      <div ref={scroller} onScroll={onScroll} className="min-h-0 flex-1 overflow-y-auto">
+        <div className="mx-auto w-full max-w-3xl px-4 pb-6 pt-2 sm:px-6">
+          {historyLoading && messages.length === 0 && (
+            <div className="space-y-6 pt-6">
+              <Skeleton className="ml-auto h-10 w-2/3 rounded-3xl" />
+              <Skeleton className="h-24 w-full rounded-2xl" />
+              <Skeleton className="h-16 w-5/6 rounded-2xl" />
+            </div>
+          )}
+          {messages.map((m) => m.role === "user" ? <UserBubble key={m.id} m={m} /> : <AssistantBubble key={m.id} m={m} />)}
+          <div ref={bottom} className="h-px" />
+        </div>
+      </div>
+
+      {!pinned && (
+        <Button size="icon-sm" variant="outline" aria-label="Scroll to bottom"
+          className="absolute bottom-[132px] left-1/2 -translate-x-1/2 rounded-full shadow-md"
+          onClick={() => { setPinned(true); bottom.current?.scrollIntoView({ behavior: "smooth" }); }}>
+          <ArrowDown className="size-4" />
+        </Button>
+      )}
+
+      <div className="shrink-0 px-3 pb-3 pt-1 sm:px-6">
+        <Composer variant="docked" />
+        <p className="mt-2 text-center text-[11px] text-muted-foreground/70">
+          Figures come straight from the practice database. Anything you are not cleared to see is never fetched.
+        </p>
+      </div>
+    </div>
+  );
+}

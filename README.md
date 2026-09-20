@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ClinicSoft Agent — Frontend
 
-## Getting Started
+Next.js 16 · React 19 · Tailwind 4 · shadcn/ui (Base UI) · Recharts · TanStack Table
 
-First, run the development server:
+The UI's job is to make the agent's reasoning visible. A user who can watch the SQL
+appear and be checked before the answer arrives can tell you when it is wrong — which is
+the whole point of putting an agent in front of a database rather than behind one.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Screens
+
+| Route | What it is for |
+|---|---|
+| `/ask` | The conversation. Each answer shows the six-stage trace, the SQL it ran (highlighted, copyable, with rationale and any validator repairs), an auto-chart when the shape suits one, a sortable table with CSV export, then the narrated answer streaming in. Refusals render as a distinct card explaining *why*. |
+| `/insights` | The 24 operational patterns planted in the demo data, each as a one-click question. Clicking switches to the right persona and asks it. |
+| `/explore` | Every table and report view, by ClinicSoft module, with row counts, vendor labels and tier badges. Columns the current persona cannot see are absent — exactly as they are absent from the model's context. |
+| `/guardrails` | The four enforcement layers, a live check of the security invariants against the database, and nine "try to break it" questions that demonstrate each refusal. |
+
+## The persona switcher
+
+Top-right. Eight demo principals, each a different read-only database role:
+
+```
+Group Owner · Branch Manager (AUH01) · Billing Lead · Claims Coordinator
+Medical Coder · Treating Clinician · Front Desk (DXB01) · Compliance Auditor
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Switching persona starts a new conversation — a persona is a security context and
+nothing carries across. The same question asked as two personas is the most convincing
+minute of the demo: a branch manager asking about another branch gets **zero rows**, by
+row-level security, with no help from the UI.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Run it
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm install
+cp .env.local.example .env.local      # NEXT_PUBLIC_API_BASE=http://127.0.0.1:8099
+pnpm dev                              # http://localhost:3000
+```
 
-## Learn More
+The backend must be running (`../backend/run.sh`). Its CORS allow-list includes
+`localhost:3000` and `localhost:5173`.
 
-To learn more about Next.js, take a look at the following resources:
+## How streaming works
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`POST /v1/ask` returns Server-Sent Events. The client uses `fetch` + `ReadableStream`
+rather than `EventSource`, because the question travels in a POST body. The parser is
+tolerant of re-chunking by a proxy. Event → UI mapping lives in `src/lib/store.ts`:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+status   → trace stepper advances
+sql      → SQL block appears (collapsed; badges for tables, tier, patient-scope)
+repair   → the block records the rejected attempt and the reason
+rows     → chart (if chartable) + table
+token    → answer streams, with a caret
+rejected → refusal card
+done     → footer: latency, rows, cost, model, tier
+```
 
-## Deploy on Vercel
+## Layout
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/lib/          api (SSE client) · store (zustand) · types · personas · insights · format
+src/components/
+  shell/          app-shell · persona-switcher · theme-provider
+  chat/           chat-thread · message · agent-trace · sql-block · result-table ·
+                  result-chart · answer · composer · suggestions · empty-state · tier-badge
+src/app/          ask · insights · explore · guardrails
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Charts
+
+`chartPlan()` in `result-chart.tsx` decides whether a result is chartable: one
+categorical or temporal column, one to four numeric ones, 2–60 rows. Anything else is a
+table, and a table is never wrong. Temporal x-axes default to a line; everything else a
+bar. Money columns are detected by name and formatted as AED.
+
+## Auth
+
+Dev header auth (`X-Tenant`, `X-Subject`). Production swaps this for
+`Authorization: Bearer <jwt>` in `src/lib/api.ts`; the backend refuses header auth when
+`ENV=prod`.
