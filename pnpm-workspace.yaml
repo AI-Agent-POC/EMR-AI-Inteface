@@ -1,4 +1,7 @@
+# Which dependencies may run install scripts. pnpm blocks them by default and refuses
+# to install while any entry is undecided, which fails a non-interactive CI build.
+# core-js's script only prints a funding notice, so it has nothing to run.
 allowBuilds:
-  core-js: set this to true or false
+  core-js: false
   sharp: false
   unrs-resolver: false
