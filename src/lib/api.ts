@@ -5,17 +5,25 @@ import type {
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://127.0.0.1:8099";
 /**
- * Which tenant this browser is talking to. In production each tenant gets its own
- * hostname (alwaha.agent.clinicsoft.example) and the first label is the tenant slug;
- * the JWT then carries the same claim and the backend refuses a mismatch. Locally
- * there is no subdomain, so NEXT_PUBLIC_TENANT decides.
+ * Which tenant this browser is talking to.
+ *
+ * NEXT_PUBLIC_TENANT always wins. Reading the slug from the first hostname label only
+ * works on a domain you control per tenant (alwaha.agent.clinicsoft.example); on a
+ * platform domain it reads the deployment's own name — emr-ai-umber.vercel.app asks
+ * for a tenant called "emr-ai-umber" — so it is opt-in, never a default.
+ *
+ * Both variables are inlined at build time, so changing either needs a redeploy, not
+ * just a restart.
  */
 export function currentTenant(): string {
-  if (typeof window !== "undefined") {
+  const configured = process.env.NEXT_PUBLIC_TENANT?.trim();
+  if (configured) return configured;
+
+  if (process.env.NEXT_PUBLIC_TENANT_FROM_SUBDOMAIN === "true" && typeof window !== "undefined") {
     const [first, ...rest] = window.location.hostname.split(".");
     if (rest.length >= 2 && !["www", "app", "localhost"].includes(first)) return first;
   }
-  return process.env.NEXT_PUBLIC_TENANT ?? "alwaha";
+  return "alwaha";
 }
 
 function headers(subject: string, extra: Record<string, string> = {}): HeadersInit {
