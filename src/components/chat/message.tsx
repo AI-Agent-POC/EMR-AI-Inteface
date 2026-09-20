@@ -7,6 +7,7 @@ import { useStore } from "@/lib/store";
 import { fmtMs, fmtUsd } from "@/lib/format";
 import { AgentTrace } from "./agent-trace";
 import { Working } from "./working";
+import { LogoMark } from "@/components/shell/logo";
 import { SqlBlock } from "./sql-block";
 import { ResultTable } from "./result-table";
 import { ResultChart, chartPlan } from "./result-chart";
@@ -45,7 +46,7 @@ export function AssistantBubble({ m }: { m: AssistantMessage }) {
 
   return (
     <div className="group flex gap-3.5 py-3">
-      <span className={cn("mt-1 grid size-7 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground font-mono text-[11px] font-bold", working && "breathe")}>cs</span>
+      <LogoMark className={cn("mt-1 size-7 rounded-lg", working && "breathe")} />
       <div className="min-w-0 flex-1 space-y-3">
         {working && <Working m={m} />}
 

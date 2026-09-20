@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { PersonaSwitcher } from "./persona-switcher";
 import { ConversationList } from "./conversation-list";
 import { ConversationMenu } from "./conversation-menu";
+import { Logo } from "./logo";
 import { api } from "@/lib/api";
 import { useStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
@@ -48,9 +49,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const sidebar = (
     <>
       <div className="flex h-14 items-center gap-2 px-3">
-        <Link href="/ask" onClick={() => setMobileOpen(false)} className="flex min-w-0 items-center gap-2.5">
-          <Mark />
-          <span className="truncate text-[14px] font-semibold tracking-tight">ClinicSoft Agent</span>
+        <Link href="/ask" onClick={() => setMobileOpen(false)} className="min-w-0">
+          <Logo />
         </Link>
         <Button variant="ghost" size="icon-sm" className="ml-auto hidden md:inline-flex text-muted-foreground" onClick={() => setCollapsed(true)} aria-label="Hide sidebar">
           <PanelLeft className="size-4" />
@@ -120,12 +120,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <main className="min-h-0 flex-1">{children}</main>
       </div>
     </div>
-  );
-}
-
-function Mark() {
-  return (
-    <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground font-mono text-[12px] font-bold">cs</span>
   );
 }
 
