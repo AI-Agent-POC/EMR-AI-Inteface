@@ -9,9 +9,20 @@ export const fmtInt = (v: number) => int.format(v);
 export const fmtMs = (ms: number) => (ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`);
 export const fmtUsd = (v: number) => (v < 0.01 ? `$${v.toFixed(5)}` : `$${v.toFixed(3)}`);
 
+/**
+ * A patient number, an invoice number or a phone number is a label that happens to be
+ * written in digits. Formatting one as a quantity turns 108002 into "108,002", which is
+ * not the number anybody can look the patient up by.
+ */
+export function isIdentifier(col: string): boolean {
+  return /^(mrn|hospital_number|.*_no|.*_id|.*_code|.*_ref|.*_number|mobile|telephone|phone)$/i
+    .test(col.trim());
+}
+
 export function fmtCell(v: unknown, col: string): string {
   if (v === null || v === undefined) return "—";
   if (typeof v === "boolean") return v ? "Yes" : "No";
+  if (isIdentifier(col)) return String(v);
   if (typeof v === "number") return looksLikeMoney(col) ? fmtAED(v) : fmtNum(v);
   if (typeof v === "string") {
     const n = Number(v);
@@ -30,6 +41,7 @@ export function looksLikeMoney(col: string): boolean {
 }
 
 export function isNumericColumn(rows: Record<string, unknown>[], col: string): boolean {
+  if (isIdentifier(col)) return false;     // digits, but not a quantity: never right-align
   let seen = 0;
   for (const r of rows.slice(0, 50)) {
     const v = r[col];
@@ -45,6 +57,43 @@ export function isNumericColumn(rows: Record<string, unknown>[], col: string): b
 export const toNumber = (v: unknown): number =>
   typeof v === "number" ? v : typeof v === "string" ? Number(v) : NaN;
 
+/**
+ * Column names as the practice says them out loud. A header is the only explanation a
+ * figure gets, so "mrn" — which means nothing to anyone outside a records office — reads
+ * as the patient number it is. Anything not listed falls back to title case.
+ */
+const LABELS: Record<string, string> = {
+  mrn: "Patient No.",
+  patient_no: "Patient No.",
+  patient_mrn: "Patient No.",
+  patient_number: "Patient No.",
+  hospital_number: "Patient No.",
+  patient_name: "Patient",
+  patient_category: "Category",
+  visit_id: "Visit ID",
+  invoice_no: "Invoice No.",
+  receipt_no: "Receipt No.",
+  claim_no: "Claim No.",
+  policy_no: "Policy No.",
+  member_id: "Member ID",
+  dob: "Date of Birth",
+  date_of_birth: "Date of Birth",
+  no_shows: "No-shows",
+  vat: "VAT",
+  vat_amount: "VAT",
+  trn: "TRN",
+  mobile: "Mobile",
+  branch: "Branch",
+  branch_code: "Branch",
+  doctor: "Doctor",
+  active_policies: "Insurance",
+  open_treatment_plans: "Open Treatment Plans",
+  lifetime_net: "Lifetime Value",
+  patient_balance: "Balance Due",
+};
+
 export function humanise(col: string): string {
+  const known = LABELS[col.trim().toLowerCase()];
+  if (known) return known;
   return col.replace(/_/g, " ").replace(/\bpct\b/i, "%").replace(/\b\w/g, (c) => c.toUpperCase());
 }

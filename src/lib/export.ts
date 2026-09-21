@@ -28,7 +28,7 @@ export function slugify(s: string, max = 48): string {
 export function exportCsv(result: ResultSet, question: string) {
   const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
   const csv = [
-    result.columns.map(esc).join(","),
+    result.columns.map((c) => esc(humanise(c))).join(","),
     ...result.rows.map((r) => result.columns.map((c) => esc(r[c])).join(",")),
   ].join("\r\n");
   // BOM so Excel reads UTF-8 rather than mangling accented names and the dirham sign.

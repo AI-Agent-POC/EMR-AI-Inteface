@@ -149,7 +149,7 @@ export function ResultBlock({ m }: { m: AssistantMessage }) {
 
       {active === "chart" && <ResultChart result={result} series={series} forecast={forecast} />}
       {active === "timeline" && series && <ResultTimeline series={series} forecast={forecast} />}
-      {active === "table" && <ResultTable result={result} />}
+      {active === "table" && <ResultTable result={result} question={m.question} />}
 
       {forecast && (
         <div className="flex gap-2 rounded-lg border border-dashed border-muted-foreground/35 bg-muted/30 px-3 py-2 text-[12px] leading-relaxed text-muted-foreground">

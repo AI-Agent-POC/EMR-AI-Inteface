@@ -6,13 +6,15 @@ import {
 } from "@tanstack/react-table";
 import type { ResultSet } from "@/lib/types";
 import { fmtCell, humanise, isNumericColumn } from "@/lib/format";
+import { exportCsv } from "@/lib/export";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
 type Row = Record<string, unknown>;
 
-export function ResultTable({ result, maxRows = 200 }: { result: ResultSet; maxRows?: number }) {
+export function ResultTable({ result, question = "result", maxRows = 200 }:
+                            { result: ResultSet; question?: string; maxRows?: number }) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const numeric = useMemo(() => new Set(result.columns.filter((c) => isNumericColumn(result.rows, c))), [result]);
 
@@ -36,21 +38,13 @@ export function ResultTable({ result, maxRows = 200 }: { result: ResultSet; maxR
   const table = useReactTable({ data, columns, state: { sorting }, onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(), getSortedRowModel: getSortedRowModel() });
 
-  const download = () => {
-    const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-    const csv = [result.columns.map(esc).join(","), ...result.rows.map((r) => result.columns.map((c) => esc(r[c])).join(","))].join("\n");
-    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-    const a = Object.assign(document.createElement("a"), { href: url, download: "result.csv" });
-    a.click(); URL.revokeObjectURL(url);
-  };
-
   return (
     <div className="rounded-lg border bg-card/60">
       <div className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground">
         <Table2 className="size-3.5" />
         <span><span className="font-medium text-foreground/80">{result.row_count.toLocaleString()}</span> row{result.row_count === 1 ? "" : "s"}{result.truncated && " (showing the first 200)"}</span>
         {result.rows.length > maxRows && <span>· showing first {maxRows}</span>}
-        <Button variant="ghost" size="sm" className="ml-auto h-8 gap-1.5 text-xs sm:h-7" onClick={download}><Download className="size-3.5" />CSV</Button>
+        <Button variant="ghost" size="sm" className="ml-auto h-8 gap-1.5 text-xs sm:h-7" onClick={() => exportCsv(result, question)}><Download className="size-3.5" />CSV</Button>
       </div>
       <div className="max-h-[55vh] overflow-auto border-t sm:max-h-[420px]">
         <Table>
