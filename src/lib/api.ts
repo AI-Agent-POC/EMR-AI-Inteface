@@ -48,9 +48,14 @@ async function send<T>(method: string, path: string, subject: string, body?: unk
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   if (!r.ok) {
-    let msg = `${r.status} ${r.statusText}`;
-    try { const j = await r.json(); msg = j?.error?.message ?? msg; } catch { /* keep */ }
-    throw new Error(msg);
+    let msg = `${r.status} ${r.statusText}`; let detail: unknown;
+    try {
+      const j = await r.json(); msg = j?.error?.message ?? msg;
+      detail = j?.error?.detail;
+      if (typeof detail === "string") { try { detail = JSON.parse(detail); } catch { /* plain text */ } }
+    } catch { /* keep */ }
+    const err = new Error(msg) as Error & { detail?: unknown }; err.detail = detail;
+    throw err;
   }
   return r.json();
 }
@@ -65,6 +70,10 @@ export const api = {
   updateConversation: (subject: string, id: string, patch: { title?: string; pinned?: boolean }) =>
     send<{ ok: true }>("PATCH", `/v1/conversations/${id}`, subject, patch),
   deleteConversation: (subject: string, id: string) => send<{ ok: true }>("DELETE", `/v1/conversations/${id}`, subject),
+  registrationReference: (subject: string) =>
+    get<{ branches: { code: string; name: string }[]; nationalities: { code: string; name: string }[] }>("/v1/reference/registration", subject),
+  registerPatient: (subject: string, body: Record<string, string>) =>
+    send<{ patient: PatientMatch }>("POST", "/v1/patients", subject, body),
   searchPatients: (subject: string, q: string) =>
     get<{ patients: PatientMatch[]; note?: string }>(`/v1/patients/search?q=${encodeURIComponent(q)}`, subject),
   confirmAction: (subject: string, id: string) =>

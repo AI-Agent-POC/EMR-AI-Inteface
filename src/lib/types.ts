@@ -188,6 +188,7 @@ export interface PatientMatch {
   mobile_hint: string | null;
   born: number | null;
   branch: string;
+  new?: boolean;                // just registered in this conversation
 }
 
 export interface Suggestion { question: string; module?: string | null; why?: string | null }

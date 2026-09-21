@@ -92,7 +92,7 @@ export function ClarifyCard({ question, action, interactive = true }: { question
           </div>
           <p className="mt-1 text-[14px] leading-relaxed text-foreground/85">
             {action?.new_patient
-              ? "If they're new to the practice, register them in ClinicSoft first (Registration → New patient), then find them here and I'll book this straight in."
+              ? "Search for them below. If they're new to the practice, you can register them right here and I'll book this straight in."
               : missing.length === 1 && missing[0] === "patient_mrn"
                 ? "Find the patient by name or mobile number and I'll put this in the diary."
                 : question}
@@ -114,7 +114,7 @@ export function ClarifyCard({ question, action, interactive = true }: { question
             <p className={cn("mt-3 flex items-start gap-1.5 text-[12.5px] leading-relaxed",
               action.new_patient ? "text-tier-restricted" : "text-muted-foreground")}>
               {action.new_patient && <ShieldAlert className="mt-0.5 size-3.5 shrink-0" />}
-              {action.new_patient ? "Please don't type their name, phone or date of birth into the chat — search for them below instead." : action.hint}
+              {action.new_patient ? "Please don't type their details into the chat — use the search and the registration form below instead." : action.hint}
             </p>
           )}
 
@@ -142,6 +142,7 @@ export function ClarifyCard({ question, action, interactive = true }: { question
                 <div key={m} className="flex w-full flex-col gap-1">
                   <span className="text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">Patient</span>
                   <PatientFinder value={patient} autoFocus={missing[0] === m}
+                    defaultBranch={known.branch ? String(known.branch) : null}
                     onChange={(pt) => { setPatient(pt); setValues((v) => ({ ...v, patient_mrn: pt?.mrn ?? "" })); }} />
                 </div>
               ) : (() => {

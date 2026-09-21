@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Search, Check, Loader2, UserRound, X } from "lucide-react";
+import { Search, Check, Loader2, UserRound, UserRoundPlus, X } from "lucide-react";
+import { RegisterPatient } from "./register-patient";
 import { api } from "@/lib/api";
 import type { PatientMatch } from "@/lib/types";
 import { useStore } from "@/lib/store";
@@ -12,11 +13,14 @@ import { cn } from "@/lib/utils";
  * number is what the booking needs, but nobody should have to know it — it is chosen
  * here and carried along silently.
  */
-export function PatientFinder({ value, onChange, autoFocus }: {
+export function PatientFinder({ value, onChange, autoFocus, defaultBranch, canRegister = true }: {
   value: PatientMatch | null;
   onChange: (p: PatientMatch | null) => void;
   autoFocus?: boolean;
+  defaultBranch?: string | null;
+  canRegister?: boolean;
 }) {
+  const [registering, setRegistering] = useState(false);
   const persona = useStore((s) => s.persona);
   const [q, setQ] = useState("");
   const [results, setResults] = useState<PatientMatch[] | null>(null);
@@ -54,6 +58,7 @@ export function PatientFinder({ value, onChange, autoFocus }: {
         <span className="inline-flex items-center gap-2 rounded-full border border-tier-open/40 bg-tier-open/10 py-1 pl-2.5 pr-1.5 text-[13px]">
           <Check className="size-3.5 text-tier-open" />
           <span className="font-medium">{value.name ?? `Patient ${value.mrn}`}</span>
+          {value.new && <span className="rounded-full bg-tier-open/15 px-1.5 text-[10.5px] font-medium uppercase tracking-wide text-tier-open">new</span>}
           {value.mobile_hint && <span className="font-mono text-[11.5px] text-muted-foreground">{value.mobile_hint}</span>}
           {value.born && <span className="text-[11.5px] text-muted-foreground">b. {value.born}</span>}
           <button type="button" onClick={() => { onChange(null); setQ(""); }} aria-label="Change patient"
@@ -63,6 +68,11 @@ export function PatientFinder({ value, onChange, autoFocus }: {
         </span>
       </div>
     );
+  }
+
+  if (registering) {
+    return <RegisterPatient initialName={q} defaultBranch={defaultBranch}
+      onDone={(pt) => { setRegistering(false); onChange(pt); }} onBack={() => setRegistering(false)} />;
   }
 
   return (
@@ -95,9 +105,23 @@ export function PatientFinder({ value, onChange, autoFocus }: {
         </ul>
       )}
       {active && results && results.length === 0 && state === "idle" && (
-        <p className="mt-2 text-[12.5px] text-muted-foreground">
-          {note ?? "No one by that name or number. Check the spelling — or if they're new, register them in ClinicSoft first and search again."}
-        </p>
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+          <p className="text-[12.5px] text-muted-foreground">
+            {note ?? "No one by that name or number."}
+          </p>
+          {canRegister && (
+            <button type="button" onClick={() => setRegistering(true)}
+              className="inline-flex h-8 items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3 text-[12.5px] font-medium text-primary hover:bg-primary/15">
+              <UserRoundPlus className="size-3.5" />Register {q.trim() || "them"} as a new patient
+            </button>
+          )}
+        </div>
+      )}
+      {active && results && results.length > 0 && canRegister && (
+        <button type="button" onClick={() => setRegistering(true)}
+          className="mt-2 inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground">
+          <UserRoundPlus className="size-3.5" />None of these — register a new patient
+        </button>
       )}
       {active && state === "denied" && <p className={cn("mt-2 text-[12.5px] text-tier-restricted")}>{note}</p>}
       {active && state === "error" && <p className="mt-2 text-[12.5px] text-tier-never">Couldn&apos;t search just now — try again.</p>}
