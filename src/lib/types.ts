@@ -34,7 +34,7 @@ export type AgentEvent =
       tier: Tier; patient_scoped: boolean; limit?: number; attempts: number; confidence?: number }
   | { type: "repair"; attempt: number; reason: string; sql: string }
   | { type: "rejected"; reason: string; attempts: number }
-  | { type: "clarify"; question: string }
+  | { type: "clarify"; question: string; action?: AgentAction }
   | { type: "not_answerable"; reason: string }
   | { type: "rows"; columns: string[]; rows: Record<string, unknown>[]; row_count: number;
       truncated: boolean; elapsed_ms: number; ran_as: string }
@@ -47,7 +47,7 @@ export type AgentEvent =
       tier_max: Tier; conversation_id?: string; seq?: number };
 
 export type ActionKind = "book" | "reschedule" | "availability";
-export type ActionStatus = "proposed" | "executed" | "failed" | "cancelled" | "expired";
+export type ActionStatus = "proposed" | "executed" | "failed" | "cancelled" | "expired" | "clarify";
 export interface AgentAction {
   kind: ActionKind;
   status: ActionStatus;
@@ -58,6 +58,12 @@ export interface AgentAction {
   result?: Record<string, unknown>;
   error?: string | null;
   outcome?: boolean;            // the sentence written after a confirm; the card lives on the proposal
+  // for a clarify: what is settled, what is still needed
+  known?: Record<string, unknown>;
+  missing?: string[];
+  hint?: string | null;
+  new_patient?: boolean;
+  options?: Record<string, string[]>;   // concrete choices for a missing field, e.g. free times
 }
 
 export interface TraceStep {

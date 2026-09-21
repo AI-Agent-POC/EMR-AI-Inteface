@@ -12,6 +12,7 @@ import { SqlBlock } from "./sql-block";
 import { ResultBlock } from "./result-block";
 import { ActionCard } from "./action-card";
 import { SlotPicker } from "./slot-picker";
+import { ClarifyCard } from "./clarify-card";
 import { Answer } from "./answer";
 import { TierBadge } from "./tier-badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -36,7 +37,7 @@ export function UserBubble({ m }: { m: UserMessage }) {
   );
 }
 
-export function AssistantBubble({ m }: { m: AssistantMessage }) {
+export function AssistantBubble({ m, latest = true }: { m: AssistantMessage; latest?: boolean }) {
   const prefs = useStore((s) => s.prefs);
   const [details, setDetails] = useState<boolean | null>(null);
   const showDetails = details ?? prefs.showSql;
@@ -50,7 +51,9 @@ export function AssistantBubble({ m }: { m: AssistantMessage }) {
       <div className="min-w-0 flex-1 space-y-3">
         {working && <Working m={m} />}
 
-        {m.refusal && <RefusalCard refusal={m.refusal} />}
+        {m.refusal && (m.refusal.kind === "clarify"
+          ? <ClarifyCard question={m.refusal.reason} action={m.action?.status === "clarify" ? m.action : undefined} interactive={latest} />
+          : <RefusalCard refusal={m.refusal} />)}
 
         {showAnswer && (
           <div className="px-0.5">
@@ -58,7 +61,7 @@ export function AssistantBubble({ m }: { m: AssistantMessage }) {
           </div>
         )}
 
-        {m.action && m.action.kind !== "availability" && !m.action.outcome && <ActionCard messageId={m.id} action={m.action} />}
+        {m.action && m.action.kind !== "availability" && !m.action.outcome && m.action.status !== "clarify" && <ActionCard messageId={m.id} action={m.action} />}
         {m.action?.kind === "availability" && m.result && m.result.row_count > 0 && <SlotPicker result={m.result} />}
         {m.result && m.result.row_count > 0 && m.action?.kind !== "availability" && <ResultBlock m={m} />}
 

@@ -44,7 +44,7 @@ export function ChatThread() {
               <Skeleton className="h-16 w-5/6 rounded-2xl" />
             </div>
           )}
-          {messages.map((m) => m.role === "user" ? <UserBubble key={m.id} m={m} /> : <AssistantBubble key={m.id} m={m} />)}
+          {messages.map((m, i) => m.role === "user" ? <UserBubble key={m.id} m={m} /> : <AssistantBubble key={m.id} m={m} latest={i === messages.length - 1} />)}
           <div ref={bottom} className="h-px" />
         </div>
       </div>

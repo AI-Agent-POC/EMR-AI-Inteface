@@ -140,7 +140,8 @@ export const useStore = create<State>()(
                 update((m) => ({ ...m, refusal: { kind: "rejected", reason: ev.reason } }));
                 break;
               case "clarify":
-                update((m) => ({ ...m, refusal: { kind: "clarify", reason: ev.question } }));
+                update((m) => ({ ...m, refusal: { kind: "clarify", reason: ev.question },
+                  action: ev.action ?? m.action }));
                 break;
               case "not_answerable":
                 update((m) => ({ ...m, refusal: { kind: "not_answerable", reason: ev.reason } }));
@@ -158,6 +159,9 @@ export const useStore = create<State>()(
                 update((m) => ({ ...m, done: ev, streaming: false, seq: ev.seq,
                   trace: m.trace.map((t) => ({ ...t, done: true, durationMs: t.durationMs ?? now - t.at })) }));
                 if (ev.conversation_id) set((s) => ({ conversation: { ...s.conversation, id: ev.conversation_id! } }));
+                // The answer is complete here. The stream closes a moment later; an Enter
+                // pressed in that moment must send, not vanish.
+                set({ busy: false });
                 break;
               }
             }
