@@ -182,6 +182,14 @@ export interface CatalogTable {
   rows: number; columns: CatalogColumn[];
 }
 
+export interface PatientMatch {
+  mrn: string;
+  name: string | null;
+  mobile_hint: string | null;
+  born: number | null;
+  branch: string;
+}
+
 export interface Suggestion { question: string; module?: string | null; why?: string | null }
 
 export interface GuardrailReport {

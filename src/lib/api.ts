@@ -1,6 +1,6 @@
 import type {
   AgentEvent, CatalogSummary, CatalogTable, ConversationDetail, ConversationSummary,
-  GuardrailReport, Suggestion, WhoAmI,
+  GuardrailReport, PatientMatch, Suggestion, WhoAmI,
 } from "./types";
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://127.0.0.1:8099";
@@ -65,6 +65,8 @@ export const api = {
   updateConversation: (subject: string, id: string, patch: { title?: string; pinned?: boolean }) =>
     send<{ ok: true }>("PATCH", `/v1/conversations/${id}`, subject, patch),
   deleteConversation: (subject: string, id: string) => send<{ ok: true }>("DELETE", `/v1/conversations/${id}`, subject),
+  searchPatients: (subject: string, q: string) =>
+    get<{ patients: PatientMatch[]; note?: string }>(`/v1/patients/search?q=${encodeURIComponent(q)}`, subject),
   confirmAction: (subject: string, id: string) =>
     send<{ kind: string; status: string; result: Record<string, unknown>; summary: string }>("POST", `/v1/actions/${id}/confirm`, subject, {}),
   cancelAction: (subject: string, id: string) => send<{ status: string }>("POST", `/v1/actions/${id}/cancel`, subject, {}),

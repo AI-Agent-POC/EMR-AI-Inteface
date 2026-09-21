@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import { ArrowRight, CalendarSearch, MessageCircleQuestion, ShieldAlert, Check } from "lucide-react";
-import type { AgentAction } from "@/lib/types";
+import type { AgentAction, PatientMatch } from "@/lib/types";
+import { PatientFinder } from "./patient-finder";
 import { useStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,7 @@ import { cn } from "@/lib/utils";
  * agent guessing what a bare "100015" refers to.
  */
 const FIELD: Record<string, { label: string; type: "text" | "date" | "time"; placeholder?: string; mono?: boolean }> = {
-  patient_mrn: { label: "Hospital number", type: "text", placeholder: "e.g. 100015", mono: true },
+  patient_mrn: { label: "Patient", type: "text" },
   doctor:      { label: "Doctor", type: "text", placeholder: "e.g. Dr Fatima Khan" },
   date:        { label: "Date", type: "date" },
   time:        { label: "Time", type: "time" },
@@ -28,6 +29,7 @@ export function ClarifyCard({ question, action, interactive = true }: { question
   const ask = useStore((s) => s.ask);
   const busy = useStore((s) => s.busy);
   const [values, setValues] = useState<Record<string, string>>({});
+  const [patient, setPatient] = useState<PatientMatch | null>(null);
   const [sent, setSent] = useState(false);
 
   const known = (action?.known ?? {}) as Record<string, string | number | boolean | null>;
@@ -84,9 +86,17 @@ export function ClarifyCard({ question, action, interactive = true }: { question
         </span>
         <div className="min-w-0 flex-1">
           <div className="text-[15px] font-medium">
-            {action?.new_patient ? "This patient needs a hospital number first" : "Almost there — one more detail"}
+            {action?.new_patient ? "Who is this appointment for?"
+              : missing.length === 1 && missing[0] === "patient_mrn" ? "Who is this appointment for?"
+              : "Almost there — one more detail"}
           </div>
-          <p className="mt-1 text-[14px] leading-relaxed text-foreground/85">{question}</p>
+          <p className="mt-1 text-[14px] leading-relaxed text-foreground/85">
+            {action?.new_patient
+              ? "If they're new to the practice, register them in ClinicSoft first (Registration → New patient), then find them here and I'll book this straight in."
+              : missing.length === 1 && missing[0] === "patient_mrn"
+                ? "Find the patient by name or mobile number and I'll put this in the diary."
+                : question}
+          </p>
 
           {pills.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-1.5">
@@ -104,7 +114,7 @@ export function ClarifyCard({ question, action, interactive = true }: { question
             <p className={cn("mt-3 flex items-start gap-1.5 text-[12.5px] leading-relaxed",
               action.new_patient ? "text-tier-restricted" : "text-muted-foreground")}>
               {action.new_patient && <ShieldAlert className="mt-0.5 size-3.5 shrink-0" />}
-              {action.hint}
+              {action.new_patient ? "Please don't type their name, phone or date of birth into the chat — search for them below instead." : action.hint}
             </p>
           )}
 
@@ -126,6 +136,13 @@ export function ClarifyCard({ question, action, interactive = true }: { question
                       </button>
                     ))}
                   </div>
+                </div>
+              ) : m === "patient_mrn" ? (
+                // The label is uppercase; the patient's name must not be.
+                <div key={m} className="flex w-full flex-col gap-1">
+                  <span className="text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">Patient</span>
+                  <PatientFinder value={patient} autoFocus={missing[0] === m}
+                    onChange={(pt) => { setPatient(pt); setValues((v) => ({ ...v, patient_mrn: pt?.mrn ?? "" })); }} />
                 </div>
               ) : (() => {
                 const f = FIELD[m];
