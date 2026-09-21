@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { AlertTriangle, ShieldX, HelpCircle, Ban, Lightbulb, Copy, Check, ThumbsUp, ThumbsDown, RefreshCw, Pencil, ChevronDown } from "lucide-react";
+import { AlertTriangle, ShieldX, HelpCircle, Ban, Lightbulb, Info, Copy, Check, ThumbsUp, ThumbsDown, RefreshCw, Pencil, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import type { AssistantMessage, UserMessage } from "@/lib/types";
 import { useStore } from "@/lib/store";
@@ -104,6 +104,9 @@ function RefusalCard({ refusal }: { refusal: NonNullable<AssistantMessage["refus
     rejected:       { Icon: ShieldX,       title: "I can't show that",                 tone: "border-tier-never/40 bg-tier-never/[0.06] text-foreground" },
     not_answerable: picks.length
       ? { Icon: Lightbulb, title: "Try one of these",                      tone: "border-primary/40 bg-primary/[0.06]" }
+      : refusal.code === "action_refused"
+      // Understood, but could not be carried out — the message says what and why.
+      ? { Icon: Info,      title: "I couldn't complete that",              tone: "border-primary/30 bg-primary/[0.04]" }
       : { Icon: Ban,       title: "I can't answer that from what I have",  tone: "border-tier-restricted/40 bg-tier-restricted/[0.06]" },
     clarify:        { Icon: HelpCircle,    title: "One quick question",                tone: "border-primary/40 bg-primary/[0.06]" },
     error:          { Icon: AlertTriangle, title: "Something went wrong — try again",  tone: "border-tier-never/40 bg-tier-never/[0.06]" },

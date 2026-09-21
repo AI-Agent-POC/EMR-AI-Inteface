@@ -145,7 +145,7 @@ export const useStore = create<State>()(
                 break;
               case "not_answerable":
                 update((m) => ({ ...m, refusal: { kind: "not_answerable", reason: ev.reason,
-                  suggestions: ev.suggestions } }));
+                  suggestions: ev.suggestions, code: ev.code } }));
                 break;
               case "action":
                 update((m) => ({ ...m, action: { kind: ev.kind, status: ev.status, public_id: ev.public_id,

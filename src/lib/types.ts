@@ -35,7 +35,7 @@ export type AgentEvent =
   | { type: "repair"; attempt: number; reason: string; sql: string }
   | { type: "rejected"; reason: string; attempts: number }
   | { type: "clarify"; question: string; action?: AgentAction }
-  | { type: "not_answerable"; reason: string; suggestions?: string[] }
+  | { type: "not_answerable"; reason: string; suggestions?: string[]; code?: string }
   | { type: "rows"; columns: string[]; rows: Record<string, unknown>[]; row_count: number;
       truncated: boolean; elapsed_ms: number; ran_as: string }
   | { type: "token"; text: string }
