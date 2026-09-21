@@ -40,13 +40,13 @@ export type AgentEvent =
       truncated: boolean; elapsed_ms: number; ran_as: string }
   | { type: "token"; text: string }
   | { type: "error"; code: string; message: string; detail?: string }
-  | { type: "action"; kind: ActionKind; status: ActionStatus; public_id: string | null;
+  | { type: "action"; kind: ActionKind; status: ActionStatus; public_id: string | null; invoice?: Invoice;
       params: Record<string, unknown>; summary: string; expires_at?: string }
   | { type: "done"; row_count: number; attempts: number; latency_ms: number; model: string | null;
       tokens_in: number; tokens_out: number; cost_usd: number; sql_valid: boolean;
       tier_max: Tier; conversation_id?: string; seq?: number };
 
-export type ActionKind = "book" | "reschedule" | "availability";
+export type ActionKind = "book" | "reschedule" | "availability" | "register" | "invoice" | "invoice_send";
 export type ActionStatus = "proposed" | "executed" | "failed" | "cancelled" | "expired" | "clarify";
 export interface AgentAction {
   kind: ActionKind;
@@ -64,6 +64,29 @@ export interface AgentAction {
   hint?: string | null;
   new_patient?: boolean;
   options?: Record<string, string[]>;   // concrete choices for a missing field, e.g. free times
+  invoice?: Invoice;                    // for kind "invoice": the document itself
+}
+
+export interface InvoiceLine {
+  no: number; code: string | null; description: string; qty: number; unit_price: number;
+  gross: number; discount: number; net: number; vat_rate: number; vat: number;
+  patient_share: number; insurance_share: number; covered: boolean | null;
+}
+export interface Invoice {
+  invoice_no: string; date: string; status: string;
+  payment_status: "unpaid" | "partly_paid" | "paid" | "written_off";
+  payer_mode: "cash" | "insurance" | "corporate"; insurer: string | null;
+  authorization_no: string | null; visit_id: string | null;
+  patient: { mrn: string; name: string | null };
+  doctor: string | null; department: string | null;
+  branch: { code: string; name: string; address: string | null; po_box: string | null; emirate: string | null;
+            trn: string | null; license: string | null; phone: string | null; email: string | null };
+  lines: InvoiceLine[];
+  totals: { gross: number; discount: number; net: number; vat: number; credit_notes: number;
+            patient_share: number; insurance_share: number; patient_paid: number;
+            insurance_received: number; patient_balance: number; insurance_balance: number };
+  payments: { receipt_no: string; date: string; amount: number; method: string | null;
+              card_last4: string | null; cheque_no: string | null }[];
 }
 
 export interface TraceStep {

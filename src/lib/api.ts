@@ -74,6 +74,9 @@ export const api = {
     get<{ branches: { code: string; name: string }[]; nationalities: { code: string; name: string }[] }>("/v1/reference/registration", subject),
   registerPatient: (subject: string, body: Record<string, string>) =>
     send<{ patient: PatientMatch }>("POST", "/v1/patients", subject, body),
+  sendInvoice: (subject: string, invoiceNo: string, channel: "whatsapp" | "sms" | "email", note?: string) =>
+    send<{ sent: { message_ref: string; channel: string; to: string; provider: string; queued_at: string } }>(
+      "POST", `/v1/invoices/${encodeURIComponent(invoiceNo)}/send`, subject, { channel, note }),
   searchPatients: (subject: string, q: string) =>
     get<{ patients: PatientMatch[]; note?: string }>(`/v1/patients/search?q=${encodeURIComponent(q)}`, subject),
   confirmAction: (subject: string, id: string) =>

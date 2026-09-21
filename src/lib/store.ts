@@ -148,7 +148,7 @@ export const useStore = create<State>()(
                 break;
               case "action":
                 update((m) => ({ ...m, action: { kind: ev.kind, status: ev.status, public_id: ev.public_id,
-                  params: ev.params, summary: ev.summary, expires_at: ev.expires_at } }));
+                  params: ev.params, summary: ev.summary, expires_at: ev.expires_at, invoice: ev.invoice } }));
                 break;
               case "error":
                 update((m) => ({ ...m, refusal: { kind: "error", reason: ev.message, code: ev.code },

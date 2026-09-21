@@ -61,6 +61,10 @@ export function ClarifyCard({ question, action, interactive = true }: { question
       const target = v("visit_id") || (known.patient_mrn ? `for patient ${known.patient_mrn}` : "");
       return `Move appointment ${target} to ${v("new_date")} at ${v("new_time")}`;
     }
+    if (kind === "invoice") {
+      const ch = known.channel ? ` by ${known.channel}` : "";
+      return `Show the latest invoice for patient ${v("patient_mrn")}${ch}`;
+    }
     const doctor = v("doctor").replace(/^dr\.?\s*/i, "");
     return `Book Dr ${doctor} on ${v("date")} at ${v("time")} for patient ${v("patient_mrn")}`;
   };
@@ -86,7 +90,8 @@ export function ClarifyCard({ question, action, interactive = true }: { question
         </span>
         <div className="min-w-0 flex-1">
           <div className="text-[15px] font-medium">
-            {action?.new_patient ? "Who is this appointment for?"
+            {kind === "invoice" ? "Whose invoice?"
+              : action?.new_patient ? "Who is this appointment for?"
               : missing.length === 1 && missing[0] === "patient_mrn" ? "Who is this appointment for?"
               : "Almost there — one more detail"}
           </div>
@@ -94,7 +99,8 @@ export function ClarifyCard({ question, action, interactive = true }: { question
             {action?.new_patient
               ? "Search for them below. If they're new to the practice, you can register them right here and I'll book this straight in."
               : missing.length === 1 && missing[0] === "patient_mrn"
-                ? "Find the patient by name or mobile number and I'll put this in the diary."
+                ? (kind === "invoice" ? "Find the patient by name or mobile number and I'll bring up their latest invoice."
+                   : "Find the patient by name or mobile number and I'll put this in the diary.")
                 : question}
           </p>
 

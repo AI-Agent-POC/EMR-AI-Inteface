@@ -13,6 +13,7 @@ import { ResultBlock } from "./result-block";
 import { ActionCard } from "./action-card";
 import { SlotPicker } from "./slot-picker";
 import { ClarifyCard } from "./clarify-card";
+import { InvoiceCard } from "./invoice-card";
 import { Answer } from "./answer";
 import { TierBadge } from "./tier-badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -61,7 +62,8 @@ export function AssistantBubble({ m, latest = true }: { m: AssistantMessage; lat
           </div>
         )}
 
-        {m.action && m.action.kind !== "availability" && !m.action.outcome && m.action.status !== "clarify" && <ActionCard messageId={m.id} action={m.action} />}
+        {m.action?.kind === "invoice" && m.action.invoice && <InvoiceCard action={m.action} />}
+        {m.action && m.action.kind !== "availability" && m.action.kind !== "invoice" && !m.action.outcome && m.action.status !== "clarify" && <ActionCard messageId={m.id} action={m.action} />}
         {m.action?.kind === "availability" && m.result && m.result.row_count > 0 && <SlotPicker result={m.result} />}
         {m.result && m.result.row_count > 0 && m.action?.kind !== "availability" && <ResultBlock m={m} />}
 
