@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { AlertTriangle, ShieldX, HelpCircle, Ban, Copy, Check, ThumbsUp, ThumbsDown, RefreshCw, Pencil, ChevronDown } from "lucide-react";
+import { AlertTriangle, ShieldX, HelpCircle, Ban, Lightbulb, Copy, Check, ThumbsUp, ThumbsDown, RefreshCw, Pencil, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import type { AssistantMessage, UserMessage } from "@/lib/types";
 import { useStore } from "@/lib/store";
@@ -98,9 +98,13 @@ function Receipts({ m }: { m: AssistantMessage }) {
 }
 
 function RefusalCard({ refusal }: { refusal: NonNullable<AssistantMessage["refusal"]> }) {
+  const ask = useStore((s) => s.ask);
+  const picks = refusal.suggestions ?? [];
   const meta = {
     rejected:       { Icon: ShieldX,       title: "I can't show that",                 tone: "border-tier-never/40 bg-tier-never/[0.06] text-foreground" },
-    not_answerable: { Icon: Ban,           title: "I can't answer that from what I have", tone: "border-tier-restricted/40 bg-tier-restricted/[0.06]" },
+    not_answerable: picks.length
+      ? { Icon: Lightbulb, title: "Try one of these",                      tone: "border-primary/40 bg-primary/[0.06]" }
+      : { Icon: Ban,       title: "I can't answer that from what I have",  tone: "border-tier-restricted/40 bg-tier-restricted/[0.06]" },
     clarify:        { Icon: HelpCircle,    title: "One quick question",                tone: "border-primary/40 bg-primary/[0.06]" },
     error:          { Icon: AlertTriangle, title: "Something went wrong — try again",  tone: "border-tier-never/40 bg-tier-never/[0.06]" },
   }[refusal.kind];
@@ -113,6 +117,16 @@ function RefusalCard({ refusal }: { refusal: NonNullable<AssistantMessage["refus
         {refusal.kind === "rejected" && (
           <span className="mt-1.5 block text-xs text-muted-foreground">
             Patient-identifying details are never listed in bulk, for anyone. This is the protection working as intended.
+          </span>
+        )}
+        {picks.length > 0 && (
+          <span className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            {picks.map((q) => (
+              <button key={q} onClick={() => void ask(q)}
+                className="max-w-full rounded-2xl border border-border/70 bg-card/60 px-3.5 py-2 text-left text-[13px] leading-snug text-foreground/85 transition-colors hover:border-primary/50 hover:text-foreground sm:rounded-full">
+                {q}
+              </button>
+            ))}
           </span>
         )}
       </AlertDescription>

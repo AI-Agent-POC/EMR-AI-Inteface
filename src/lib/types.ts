@@ -35,7 +35,7 @@ export type AgentEvent =
   | { type: "repair"; attempt: number; reason: string; sql: string }
   | { type: "rejected"; reason: string; attempts: number }
   | { type: "clarify"; question: string; action?: AgentAction }
-  | { type: "not_answerable"; reason: string }
+  | { type: "not_answerable"; reason: string; suggestions?: string[] }
   | { type: "rows"; columns: string[]; rows: Record<string, unknown>[]; row_count: number;
       truncated: boolean; elapsed_ms: number; ran_as: string }
   | { type: "token"; text: string }
@@ -130,7 +130,8 @@ export interface AssistantMessage {
   repairs: Repair[];
   result?: ResultSet;
   answer: string;
-  refusal?: { kind: "rejected" | "clarify" | "not_answerable" | "error"; reason: string; code?: string };
+  refusal?: { kind: "rejected" | "clarify" | "not_answerable" | "error"; reason: string;
+              code?: string; suggestions?: string[] };
   done?: Extract<AgentEvent, { type: "done" }>;
   streaming: boolean;
   startedAt: number;
