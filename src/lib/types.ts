@@ -57,6 +57,7 @@ export interface AgentAction {
   expires_at?: string;
   result?: Record<string, unknown>;
   error?: string | null;
+  outcome?: boolean;            // the sentence written after a confirm; the card lives on the proposal
 }
 
 export interface TraceStep {

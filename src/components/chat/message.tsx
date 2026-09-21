@@ -58,7 +58,7 @@ export function AssistantBubble({ m }: { m: AssistantMessage }) {
           </div>
         )}
 
-        {m.action && m.action.kind !== "availability" && <ActionCard messageId={m.id} action={m.action} />}
+        {m.action && m.action.kind !== "availability" && !m.action.outcome && <ActionCard messageId={m.id} action={m.action} />}
         {m.action?.kind === "availability" && m.result && m.result.row_count > 0 && <SlotPicker result={m.result} />}
         {m.result && m.result.row_count > 0 && m.action?.kind !== "availability" && <ResultBlock m={m} />}
 
@@ -149,7 +149,7 @@ function Actions({ m, details, onToggleDetails }: { m: AssistantMessage; details
         <RefreshCw className="size-3.5" />
       </Button>
       <span className="ml-2 text-[11.5px] text-muted-foreground/80">
-        {time(m.startedAt)} · answered in {fmtMs(d.latency_ms)}
+        {time(m.startedAt)}{!m.action?.outcome && <> · answered in {fmtMs(d.latency_ms)}</>}
       </span>
       <Button variant="ghost" size="sm" onClick={onToggleDetails}
         className={cn("ml-auto h-8 gap-1 px-2.5 text-[12px] text-muted-foreground sm:h-6 sm:px-2 sm:text-[11.5px]", details && "text-foreground")}>
