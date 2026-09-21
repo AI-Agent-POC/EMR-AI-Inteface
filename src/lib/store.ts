@@ -2,8 +2,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type {
-  AgentEvent, AssistantMessage, ConversationSummary, Message, Persona, Stage, StoredMessage,
-  TraceStep, UserMessage,
+  AgentAction, AgentEvent, AssistantMessage, ConversationSummary, Message, Persona, Stage,
+  StoredMessage, TraceStep, UserMessage,
 } from "./types";
 import { DEFAULT_PERSONA, PERSONAS } from "./personas";
 import { api, askStream } from "./api";
@@ -38,6 +38,8 @@ interface State {
   pinConversation: (id: string, pinned: boolean) => Promise<void>;
   deleteConversation: (id: string) => Promise<void>;
   feedback: (assistantId: string, score: -1 | 0 | 1) => Promise<void>;
+  confirmAction: (assistantId: string) => Promise<void>;
+  cancelAction: (assistantId: string) => Promise<void>;
 }
 
 let controller: AbortController | null = null;
@@ -143,6 +145,10 @@ export const useStore = create<State>()(
               case "not_answerable":
                 update((m) => ({ ...m, refusal: { kind: "not_answerable", reason: ev.reason } }));
                 break;
+              case "action":
+                update((m) => ({ ...m, action: { kind: ev.kind, status: ev.status, public_id: ev.public_id,
+                  params: ev.params, summary: ev.summary, expires_at: ev.expires_at } }));
+                break;
               case "error":
                 update((m) => ({ ...m, refusal: { kind: "error", reason: ev.message, code: ev.code },
                   answer: m.answer || ev.message }));
@@ -217,6 +223,32 @@ export const useStore = create<State>()(
           conversation: s.conversation.id === id ? EMPTY : s.conversation,
         }));
         await api.deleteConversation(get().persona.subject, id);
+      },
+
+      confirmAction: async (assistantId) => {
+        const { conversation, persona } = get();
+        const m = conversation.messages.find((x) => x.id === assistantId);
+        if (!m || m.role !== "assistant" || !m.action?.public_id) return;
+        const id = m.action.public_id;
+        const patch = (a: Partial<AgentAction>) =>
+          set((s) => ({ conversation: { ...s.conversation, messages: s.conversation.messages.map((x) =>
+            x.id === assistantId && x.role === "assistant" && x.action ? { ...x, action: { ...x.action, ...a } } : x) } }));
+        try {
+          const out = await api.confirmAction(persona.subject, id);
+          patch({ status: "executed", result: out.result, error: null });
+        } catch (e) {
+          patch({ status: "failed", error: (e as Error).message });
+        }
+        void get().loadConversations();
+      },
+
+      cancelAction: async (assistantId) => {
+        const { conversation, persona } = get();
+        const m = conversation.messages.find((x) => x.id === assistantId);
+        if (!m || m.role !== "assistant" || !m.action?.public_id) return;
+        set((s) => ({ conversation: { ...s.conversation, messages: s.conversation.messages.map((x) =>
+          x.id === assistantId && x.role === "assistant" && x.action ? { ...x, action: { ...x.action, status: "cancelled" } } : x) } }));
+        await api.cancelAction(persona.subject, m.action.public_id).catch(() => undefined);
       },
 
       feedback: async (assistantId, score) => {
@@ -297,6 +329,7 @@ function fromStored(msgs: StoredMessage[]): Message[] {
         sql_valid: !!m.sql_valid, tier_max: m.tier_max ?? "open", seq: m.seq,
       },
       streaming: false, startedAt, seq: m.seq, feedback: m.feedback,
+      action: m.action ?? undefined,
     });
   }
   return out;

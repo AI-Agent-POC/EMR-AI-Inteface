@@ -65,6 +65,9 @@ export const api = {
   updateConversation: (subject: string, id: string, patch: { title?: string; pinned?: boolean }) =>
     send<{ ok: true }>("PATCH", `/v1/conversations/${id}`, subject, patch),
   deleteConversation: (subject: string, id: string) => send<{ ok: true }>("DELETE", `/v1/conversations/${id}`, subject),
+  confirmAction: (subject: string, id: string) =>
+    send<{ kind: string; status: string; result: Record<string, unknown>; summary: string }>("POST", `/v1/actions/${id}/confirm`, subject, {}),
+  cancelAction: (subject: string, id: string) => send<{ status: string }>("POST", `/v1/actions/${id}/cancel`, subject, {}),
   feedback: (subject: string, id: string, seq: number, score: -1 | 0 | 1, note?: string) =>
     send<{ ok: true }>("POST", `/v1/conversations/${id}/messages/${seq}/feedback`, subject, { score, note }),
   me: (subject: string) => get<WhoAmI>("/v1/me", subject),

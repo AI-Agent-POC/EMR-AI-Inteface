@@ -79,3 +79,12 @@ bar. Money columns are detected by name and formatted as AED.
 Dev header auth (`X-Tenant`, `X-Subject`). Production swaps this for
 `Authorization: Bearer <jwt>` in `src/lib/api.ts`; the backend refuses header auth when
 `ENV=prod`.
+
+## Diary actions and dictation
+
+- Asking who is free renders a slot picker; tapping a time drops a booking sentence into
+  the composer. Sending it produces a proposal card with Confirm / Cancel and a countdown.
+  Nothing is written until Confirm; the card then shows the appointment reference.
+- The microphone button uses the browser's own speech recognition (Chrome, Edge,
+  Safari). It renders only where the engine exists. Audio goes to the browser vendor's
+  recogniser, not to this backend — keep that in mind before dictating patient details.

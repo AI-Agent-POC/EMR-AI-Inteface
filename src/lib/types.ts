@@ -40,9 +40,24 @@ export type AgentEvent =
       truncated: boolean; elapsed_ms: number; ran_as: string }
   | { type: "token"; text: string }
   | { type: "error"; code: string; message: string; detail?: string }
+  | { type: "action"; kind: ActionKind; status: ActionStatus; public_id: string | null;
+      params: Record<string, unknown>; summary: string; expires_at?: string }
   | { type: "done"; row_count: number; attempts: number; latency_ms: number; model: string | null;
       tokens_in: number; tokens_out: number; cost_usd: number; sql_valid: boolean;
       tier_max: Tier; conversation_id?: string; seq?: number };
+
+export type ActionKind = "book" | "reschedule" | "availability";
+export type ActionStatus = "proposed" | "executed" | "failed" | "cancelled" | "expired";
+export interface AgentAction {
+  kind: ActionKind;
+  status: ActionStatus;
+  public_id: string | null;
+  params: Record<string, unknown>;
+  summary: string;
+  expires_at?: string;
+  result?: Record<string, unknown>;
+  error?: string | null;
+}
 
 export interface TraceStep {
   stage: Stage;
@@ -91,6 +106,7 @@ export interface AssistantMessage {
   startedAt: number;
   seq?: number;                 // position in the stored conversation; needed for feedback
   feedback?: -1 | 0 | 1 | null;
+  action?: AgentAction;         // a diary proposal or its outcome
 }
 
 export interface UserMessage { id: string; role: "user"; text: string; at: number; seq?: number }
@@ -129,6 +145,7 @@ export interface StoredMessage {
   trace: { stage: Stage; detail?: string | null; tables?: string[] | null; start_ms: number; end_ms?: number }[] | null;
   plan: (Partial<Omit<SqlInfo, "sql">> & { repairs?: Repair[] }) | null;
   result: ResultSet | null;
+  action: AgentAction | null;
   created_at: string;
 }
 

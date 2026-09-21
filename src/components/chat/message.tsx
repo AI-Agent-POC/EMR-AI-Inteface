@@ -10,6 +10,8 @@ import { Working } from "./working";
 import { LogoMark } from "@/components/shell/logo";
 import { SqlBlock } from "./sql-block";
 import { ResultBlock } from "./result-block";
+import { ActionCard } from "./action-card";
+import { SlotPicker } from "./slot-picker";
 import { Answer } from "./answer";
 import { TierBadge } from "./tier-badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -56,7 +58,9 @@ export function AssistantBubble({ m }: { m: AssistantMessage }) {
           </div>
         )}
 
-        {m.result && m.result.row_count > 0 && <ResultBlock m={m} />}
+        {m.action && m.action.kind !== "availability" && <ActionCard messageId={m.id} action={m.action} />}
+        {m.action?.kind === "availability" && m.result && m.result.row_count > 0 && <SlotPicker result={m.result} />}
+        {m.result && m.result.row_count > 0 && m.action?.kind !== "availability" && <ResultBlock m={m} />}
 
         {m.done && <Actions m={m} details={showDetails} onToggleDetails={() => setDetails(!showDetails)} />}
 

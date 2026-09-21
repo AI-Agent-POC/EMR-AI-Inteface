@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { ArrowUp, Square, ListTree, BarChart3 } from "lucide-react";
+import { ArrowUp, Square, ListTree, BarChart3, Mic, MicOff } from "lucide-react";
+import { useSpeech } from "@/lib/use-speech";
+import { toast } from "sonner";
 import { useStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
@@ -22,6 +24,17 @@ export function Composer({ variant = "docked" }: { variant?: "hero" | "docked" }
   const ref = useRef<HTMLTextAreaElement>(null);
   const hero = variant === "hero";
 
+  // Dictation appends to whatever was typed; the typed part is frozen when the mic
+  // starts so interim results can be replaced without eating it.
+  const base = useRef("");
+  const speech = useSpeech((spoken) => setText((base.current ? base.current + " " : "") + spoken));
+  const toggleMic = () => {
+    if (speech.listening) { speech.stop(); return; }
+    base.current = text.trim();
+    speech.start();
+  };
+  useEffect(() => { if (speech.error) toast.error(speech.error); }, [speech.error]);
+
   useEffect(() => { ref.current?.focus(); }, [variant]);
   useEffect(() => {
     const el = ref.current; if (!el) return;
@@ -40,7 +53,7 @@ export function Composer({ variant = "docked" }: { variant?: "hero" | "docked" }
         <textarea ref={ref} value={text} rows={1}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
-          placeholder={hero ? "Ask anything about the practice" : "Ask a follow-up"}
+          placeholder={speech.listening ? "Listening…" : hero ? "Ask anything about the practice" : "Ask a follow-up"}
           className={cn("w-full resize-none bg-transparent px-5 outline-none placeholder:text-muted-foreground/60",
             hero ? "pt-5 pb-14 text-[16px]" : "pt-4 pb-12 text-[15px]")} />
         <div className="absolute inset-x-3 bottom-2.5 flex items-center gap-1.5">
@@ -51,6 +64,13 @@ export function Composer({ variant = "docked" }: { variant?: "hero" | "docked" }
             <BarChart3 className="size-3.5" />Chart
           </Chip>
           <span className="ml-auto mr-2 hidden text-[11px] text-muted-foreground/70 sm:inline"><Kbd>⏎</Kbd> send · <Kbd>⇧⏎</Kbd> newline</span>
+          {speech.supported && (
+            <Button size="icon" variant={speech.listening ? "destructive" : "ghost"} onClick={toggleMic}
+              className={cn("size-9 rounded-full", !speech.listening && "text-muted-foreground", speech.listening && "breathe")}
+              aria-label={speech.listening ? "Stop dictating" : "Dictate a question"} title={speech.listening ? "Stop" : "Speak your question"}>
+              {speech.listening ? <MicOff className="size-4" /> : <Mic className="size-4" />}
+            </Button>
+          )}
           {busy ? (
             <Button size="icon" className="size-9 rounded-full" variant="secondary" onClick={stop} aria-label="Stop"><Square className="size-3.5 fill-current" /></Button>
           ) : (

@@ -77,7 +77,7 @@ export default function GuardrailsPage() {
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {t ? [
               { l: "Never-tier columns readable by any role", v: t.never_columns_readable, want: 0 },
-              { l: "Write privileges held by any role",       v: t.write_grants,           want: 0 },
+              { l: "Write privileges held by any read role",  v: t.write_grants,           want: 0 },
               { l: "Tables without row-level security",      v: t.tables_without_rls,     want: 0 },
               { l: "Column-level grants in force",           v: t.column_grants,          want: null },
             ].map((s) => (
